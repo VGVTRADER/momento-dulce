@@ -1,0 +1,8 @@
+streamlit==1.63.0
+yfinance==1.4.1
+pandas==2.3.2
+numpy==2.3.3
+plotly==6.8.0
+deep-translator==1.11.4
+requests==2.31.0
+lxml==6.0.2
