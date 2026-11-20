@@ -421,7 +421,7 @@ def _pantalla_login():
     modo = st.radio("", ["🔑 Entrar", "📝 Registrarse"], horizontal=True, label_visibility="collapsed")
 
     if modo == "🔑 Entrar":
-        _mostrar_pw = st.checkbox("👁 Mostrar contraseña", value=False, key="login_show_pw")
+        _mostrar_pw = st.checkbox("Ver contraseña", value=False, key="login_show_pw")
         with st.form("login_form"):
             u = st.text_input("Email / usuario")
             p = st.text_input("Contraseña", type="text" if _mostrar_pw else "password")
@@ -437,7 +437,7 @@ def _pantalla_login():
                 st.error("Usuario o contraseña incorrectos.")
 
     else:  # Registrarse
-        _mostrar_pw2 = st.checkbox("👁 Mostrar contraseña", value=False, key="reg_show_pw")
+        _mostrar_pw2 = st.checkbox("Ver contraseña", value=False, key="reg_show_pw")
         with st.form("reg_form"):
             ru = st.text_input("Email")
             rn = st.text_input("Nombre")
