@@ -3,6 +3,8 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 from deep_translator import GoogleTranslator
+from core import check_login, load_users, save_users, hash_pw, cuenta_pendiente
+import usuarios as mod_usuarios
 
 st.set_page_config(page_title="Momento Dulce Scanner", page_icon="🎯", layout="wide")
 
@@ -389,13 +391,83 @@ hr { border-color: var(--tv-border) !important; }
 """, unsafe_allow_html=True)
 
 
+# ── LOGIN ─────────────────────────────────────────────────────────────────────
+def _pantalla_login():
+    st.markdown("""
+    <style>
+    .login-box {
+        max-width: 420px; margin: 60px auto; padding: 36px 32px;
+        background: #1e222d; border: 1px solid #2a2e39; border-radius: 12px;
+    }
+    .login-box h2 { color: #d1d4dc; font-size: 20px; margin-bottom: 4px; }
+    .login-box p  { color: #787b86; font-size: 13px; margin-bottom: 20px; }
+    </style>
+    <div class='login-box'>
+      <h2>🎯 Momento Dulce Scanner</h2>
+      <p>Acceso privado — introduce tus credenciales</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    modo = st.radio("", ["🔑 Entrar", "📝 Registrarse"], horizontal=True, label_visibility="collapsed")
+
+    if modo == "🔑 Entrar":
+        with st.form("login_form"):
+            u = st.text_input("Email / usuario")
+            p = st.text_input("Contraseña", type="password")
+            ok = st.form_submit_button("Entrar →", type="primary", use_container_width=True)
+        if ok:
+            datos = check_login(u, p)
+            if datos:
+                st.session_state["usuario_logado"] = datos
+                st.rerun()
+            elif cuenta_pendiente(u, p):
+                st.warning("Tu cuenta está pendiente de activación. Contacta con el administrador.")
+            else:
+                st.error("Usuario o contraseña incorrectos.")
+
+    else:  # Registrarse
+        with st.form("reg_form"):
+            ru = st.text_input("Email")
+            rn = st.text_input("Nombre")
+            rp = st.text_input("Contraseña (mín. 4 caracteres)", type="password")
+            rp2 = st.text_input("Repite contraseña", type="password")
+            ok = st.form_submit_button("Crear cuenta", type="primary", use_container_width=True)
+        if ok:
+            u2 = (ru or "").strip().lower()
+            if not u2 or not rp:
+                st.error("Rellena todos los campos.")
+            elif rp != rp2:
+                st.error("Las contraseñas no coinciden.")
+            elif len(rp) < 4:
+                st.error("La contraseña debe tener al menos 4 caracteres.")
+            else:
+                uu = load_users()
+                if u2 in {str(k).strip().lower() for k in uu}:
+                    st.error("Ese usuario ya existe.")
+                else:
+                    from datetime import datetime
+                    uu[u2] = {"password": hash_pw(rp), "nombre": rn.strip() or u2,
+                              "rol": "usuario", "activo": False,
+                              "creado": f"{datetime.now():%d/%m/%Y %H:%M}"}
+                    if "@" in u2:
+                        uu[u2]["email"] = u2
+                    save_users(uu)
+                    st.success("✅ Cuenta creada. Espera a que el administrador la active.")
+
+if "usuario_logado" not in st.session_state:
+    _pantalla_login()
+    st.stop()
+
+_usuario = st.session_state["usuario_logado"]
+_es_admin = _usuario.get("rol") == "admin"
+
 # ── Idioma ────────────────────────────────────────────────────────────────────
 if "idioma" not in st.session_state:
     st.session_state.idioma = "es"
 
 ES = st.session_state.idioma == "es"
 
-# ── Admin (pasado como query param desde patrimonio_infinito) ─────────────────
+# ── Admin ─────────────────────────────────────────────────────────────────────
 _admin = True
 
 @st.cache_data(show_spinner=False)
@@ -890,12 +962,33 @@ PERFILES = {
 }
 
 # ── UI ────────────────────────────────────────────────────────────────────────
-col_title, col_lang = st.columns([8, 1])
+col_title, col_lang, col_user = st.columns([7, 1, 2])
 col_title.title(T["titulo"])
 col_title.markdown(T["subtitulo"])
 if col_lang.button(T["traducir_btn"], width="stretch"):
     st.session_state.idioma = "en" if ES else "es"
     st.rerun()
+
+with col_user:
+    _nombre_u = _usuario.get("nombre", "Usuario")
+    _rol_u    = _usuario.get("rol", "usuario")
+    st.markdown(
+        f"<div style='text-align:right;font-size:12px;color:#787b86;margin-top:6px'>"
+        f"{'👑 ' if _rol_u=='admin' else '👤 '}{_nombre_u}</div>",
+        unsafe_allow_html=True,
+    )
+    _c1, _c2 = st.columns(2)
+    if _es_admin:
+        if _c1.button("👥", help="Panel de usuarios", width="stretch"):
+            st.session_state["_ver_usuarios"] = not st.session_state.get("_ver_usuarios", False)
+    if _c2.button("🚪", help="Cerrar sesión", width="stretch"):
+        del st.session_state["usuario_logado"]
+        st.rerun()
+
+# ── Panel de usuarios (solo admin) ───────────────────────────────────────────
+if _es_admin and st.session_state.get("_ver_usuarios"):
+    with st.expander("👥 Panel de Usuarios", expanded=True):
+        mod_usuarios.render()
 
 # ── Selector de perfil ────────────────────────────────────────────────────────
 if "perfil_sel" not in st.session_state:
