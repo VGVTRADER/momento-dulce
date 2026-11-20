@@ -421,10 +421,9 @@ def _pantalla_login():
     modo = st.radio("", ["🔑 Entrar", "📝 Registrarse"], horizontal=True, label_visibility="collapsed")
 
     if modo == "🔑 Entrar":
-        _mostrar_pw = st.checkbox("Ver contraseña", value=False, key="login_show_pw")
         with st.form("login_form"):
             u = st.text_input("Email / usuario")
-            p = st.text_input("Contraseña", type="text" if _mostrar_pw else "password")
+            p = st.text_input("Contraseña", type="password")
             ok = st.form_submit_button("Entrar →", type="primary", use_container_width=True)
         if ok:
             datos = check_login(u, p)
@@ -437,12 +436,11 @@ def _pantalla_login():
                 st.error("Usuario o contraseña incorrectos.")
 
     else:  # Registrarse
-        _mostrar_pw2 = st.checkbox("Ver contraseña", value=False, key="reg_show_pw")
         with st.form("reg_form"):
             ru = st.text_input("Email")
             rn = st.text_input("Nombre")
-            rp = st.text_input("Contraseña (mín. 4 caracteres)", type="text" if _mostrar_pw2 else "password")
-            rp2 = st.text_input("Repite contraseña", type="text" if _mostrar_pw2 else "password")
+            rp = st.text_input("Contraseña (mín. 4 caracteres)", type="password")
+            rp2 = st.text_input("Repite contraseña", type="password")
             ok = st.form_submit_button("Crear cuenta", type="primary", use_container_width=True)
         if ok:
             u2 = (ru or "").strip().lower()
