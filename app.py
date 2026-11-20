@@ -3456,9 +3456,15 @@ if not buy_df.empty:
                 f"🤖 _Generado por Momento Dulce Scanner_"
             )
 
-            tab_pat, tab_wa, tab_json, tab_mt4, tab_mt5, tab_pine = st.tabs([
-                "🎯 Patrón", "📱 WhatsApp", "📄 JSON", "🖥️ MT4", "🖥️ MT5", "📈 PineScript"
-            ])
+            if _es_admin:
+                tab_pat, tab_wa, tab_json, tab_mt4, tab_mt5, tab_pine = st.tabs([
+                    "🎯 Patrón", "📱 WhatsApp", "📄 JSON", "🖥️ MT4", "🖥️ MT5", "📈 PineScript"
+                ])
+            else:
+                tab_pat, tab_json, tab_mt4, tab_mt5, tab_pine = st.tabs([
+                    "🎯 Patrón", "📄 JSON", "🖥️ MT4", "🖥️ MT5", "📈 PineScript"
+                ])
+                tab_wa = None
 
             with tab_pat:
                 _rng   = tr['tp3'] - tr['sl']
@@ -3545,7 +3551,8 @@ if not buy_df.empty:
     ayuda="Máximo histórico de la acción = objetivo final del trade.\n\nPrecio: {:.2f}\n\nCierras el último 20% aquí → 100% de la posición liquidada.\n\nOperando en gráfico diario, el máximo histórico es el techo natural. No perseguir más allá.\n\nR:R actual: {:.1f}x".format(row['_swing_high'], tr['rr3']))}
 </div>""", unsafe_allow_html=True)
 
-            with tab_wa:
+            if _es_admin:
+              with tab_wa:
                 _wa_id = f"wa_msg_{ticker.replace('=','_').replace('^','_').replace('-','_')}"
                 _wa_escaped = texto_whatsapp.replace("\\", "\\\\").replace("`", "\\`").replace("$", "\\$")
                 st.markdown(
