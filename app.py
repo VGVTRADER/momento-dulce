@@ -334,15 +334,33 @@ input:focus, textarea:focus {
     background: #131722 !important;
 }
 [data-testid="stDataFrame"] > div,
+[data-testid="stDataFrame"] > div > div,
 [data-testid="stDataFrame"] canvas,
-[data-testid="stDataFrame"] iframe {
+[data-testid="stDataFrame"] iframe,
+[data-testid="stDataFrame"] [class*="stDataFrame"],
+[data-testid="stDataFrame"] [class*="dataframe"],
+[data-testid="stDataFrame"] [data-testid="StyledDataFrameDataCell"],
+[data-testid="stDataFrame"] th,
+[data-testid="stDataFrame"] td,
+[data-testid="stDataFrame"] thead,
+[data-testid="stDataFrame"] thead tr,
+[data-testid="stDataFrame"] thead th {
     background: #131722 !important;
-}
-/* Forzar fondo oscuro en el contenedor WebGL/canvas del dataframe */
-[data-testid="stDataFrame"] [class*="glContainer"],
-[data-testid="stDataFrame"] [class*="canvas"],
-[data-testid="stDataFrame"] div[style*="background"] {
     background-color: #131722 !important;
+    color: #d1d4dc !important;
+}
+/* Cabecera de la tabla */
+[data-testid="stDataFrame"] [class*="header"],
+[data-testid="stDataFrame"] [role="columnheader"],
+[data-testid="stDataFrame"] [role="columnheader"] * {
+    background: #1e222d !important;
+    background-color: #1e222d !important;
+    color: #d1d4dc !important;
+}
+/* Filas vacías */
+[data-testid="stDataFrame"] [role="row"],
+[data-testid="stDataFrame"] [role="gridcell"] {
+    background: #131722 !important;
 }
 /* Toolbar de la tabla (botones descargar, etc.) */
 [data-testid="stDataFrameToolbar"] {
@@ -1156,7 +1174,7 @@ REGIONES = {
     "🌏 Asia-Pacífico":    ["🇯🇵 Nikkei 225", "🇭🇰 Hang Seng", "🇦🇺 ASX 200", "🇰🇷 KOSPI", "🇮🇳 BSE Sensex"],
     "🌎 América":          ["🇨🇦 TSX", "🇧🇷 Bovespa", "🇲🇽 IPC México"],
     "🪙 Otros":            ["🪙 Crypto", "🛢️ Materias Primas", "📊 Futuros", "📈 Índices CFD"],
-    "🏦 Cuentas Fondeadas":["🏦 FTMO", "🟠 DARWINEX", "🔵 ORION FUNDED"],
+
     "💱 Divisas":          ["💱 Divisas"],
 }
 
