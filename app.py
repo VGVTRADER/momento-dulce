@@ -333,35 +333,8 @@ input:focus, textarea:focus {
     overflow: hidden !important;
     background: #131722 !important;
 }
-[data-testid="stDataFrame"] > div,
-[data-testid="stDataFrame"] > div > div,
-[data-testid="stDataFrame"] canvas,
-[data-testid="stDataFrame"] iframe,
-[data-testid="stDataFrame"] [class*="stDataFrame"],
-[data-testid="stDataFrame"] [class*="dataframe"],
-[data-testid="stDataFrame"] [data-testid="StyledDataFrameDataCell"],
-[data-testid="stDataFrame"] th,
-[data-testid="stDataFrame"] td,
-[data-testid="stDataFrame"] thead,
-[data-testid="stDataFrame"] thead tr,
-[data-testid="stDataFrame"] thead th {
-    background: #131722 !important;
-    background-color: #131722 !important;
-    color: #d1d4dc !important;
-}
-/* Cabecera de la tabla */
-[data-testid="stDataFrame"] [class*="header"],
-[data-testid="stDataFrame"] [role="columnheader"],
-[data-testid="stDataFrame"] [role="columnheader"] * {
-    background: #1e222d !important;
-    background-color: #1e222d !important;
-    color: #d1d4dc !important;
-}
-/* Filas vacías */
-[data-testid="stDataFrame"] [role="row"],
-[data-testid="stDataFrame"] [role="gridcell"] {
-    background: #131722 !important;
-}
+/* El canvas WebGL gestiona el interior — solo forzamos el wrapper a oscuro */
+[data-testid="stDataFrame"] > div { background: #131722 !important; }
 /* Toolbar de la tabla (botones descargar, etc.) */
 [data-testid="stDataFrameToolbar"] {
     background: var(--tv-panel2) !important;
