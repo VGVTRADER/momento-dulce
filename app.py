@@ -411,6 +411,17 @@ def _pantalla_login():
     }
     .login-box h2 { color: #d1d4dc; font-size: 20px; margin-bottom: 4px; }
     .login-box p  { color: #787b86; font-size: 13px; margin-bottom: 20px; }
+    /* Ocultar el botón de visibilidad nativo del navegador en inputs de contraseña */
+    input[type="password"]::-ms-reveal,
+    input[type="password"]::-ms-clear,
+    input[type="password"]::-webkit-contacts-auto-fill-button,
+    input[type="password"]::-webkit-credentials-auto-fill-button { display: none !important; }
+    /* Ocultar el icono de visibilidad que Streamlit añade */
+    [data-testid="stTextInput"] [data-testid="textInputRootElement"] + div { display: none !important; }
+    button[aria-label="visibility"],
+    button[title="visibility"],
+    button[aria-label="Show password"],
+    button[title="Show password"] { display: none !important; }
     </style>
     <div class='login-box'>
       <h2>🎯 Momento Dulce Scanner</h2>
