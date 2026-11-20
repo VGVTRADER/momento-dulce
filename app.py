@@ -326,13 +326,23 @@ input:focus, textarea:focus {
 [data-testid="stMetricLabel"] { color: var(--tv-muted) !important; font-size: 11px !important; }
 [data-testid="stMetricValue"] { color: var(--tv-text)  !important; font-size: 20px !important; }
 
-/* ── Dataframes / tabla de resultados ──
-   Streamlit dataframe usa canvas/WebGL — el color lo gestiona config.toml.
-   Aquí solo estilamos el wrapper y el toolbar. ── */
+/* ── Dataframes / tabla de resultados ── */
 [data-testid="stDataFrame"] {
     border: 1px solid var(--tv-border2) !important;
     border-radius: 8px !important;
     overflow: hidden !important;
+    background: #131722 !important;
+}
+[data-testid="stDataFrame"] > div,
+[data-testid="stDataFrame"] canvas,
+[data-testid="stDataFrame"] iframe {
+    background: #131722 !important;
+}
+/* Forzar fondo oscuro en el contenedor WebGL/canvas del dataframe */
+[data-testid="stDataFrame"] [class*="glContainer"],
+[data-testid="stDataFrame"] [class*="canvas"],
+[data-testid="stDataFrame"] div[style*="background"] {
+    background-color: #131722 !important;
 }
 /* Toolbar de la tabla (botones descargar, etc.) */
 [data-testid="stDataFrameToolbar"] {
@@ -979,18 +989,23 @@ with col_user:
         f"{'👑 ' if _rol_u=='admin' else '👤 '}{_nombre_u}</div>",
         unsafe_allow_html=True,
     )
-    _c1, _c2 = st.columns(2)
     if _es_admin:
-        if _c1.button("👥", help="Panel de usuarios", width="stretch"):
+        _c1, _c2 = st.columns(2)
+        if _c1.button("👥 Usuarios", help="Panel de usuarios", width="stretch", type="primary"):
             st.session_state["_ver_usuarios"] = not st.session_state.get("_ver_usuarios", False)
-    if _c2.button("🚪", help="Cerrar sesión", width="stretch"):
-        del st.session_state["usuario_logado"]
-        st.rerun()
+        if _c2.button("🚪 Salir", help="Cerrar sesión", width="stretch"):
+            del st.session_state["usuario_logado"]
+            st.rerun()
+    else:
+        if st.button("🚪 Salir", help="Cerrar sesión", width="stretch"):
+            del st.session_state["usuario_logado"]
+            st.rerun()
 
-# ── Panel de usuarios (solo admin) ───────────────────────────────────────────
+# ── Panel de usuarios (solo admin) — siempre visible arriba ──────────────────
 if _es_admin and st.session_state.get("_ver_usuarios"):
-    with st.expander("👥 Panel de Usuarios", expanded=True):
-        mod_usuarios.render()
+    st.markdown("### 👥 Panel de Usuarios")
+    mod_usuarios.render()
+    st.divider()
 
 # ── Selector de perfil ────────────────────────────────────────────────────────
 if "perfil_sel" not in st.session_state:
