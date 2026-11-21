@@ -6,7 +6,7 @@ from deep_translator import GoogleTranslator
 from core import check_login, load_users, save_users, hash_pw, cuenta_pendiente
 import usuarios as mod_usuarios
 
-st.set_page_config(page_title="Momento Dulce Scanner", page_icon="🎯", layout="wide")
+st.set_page_config(page_title="PI MOMENTUM", page_icon="🎯", layout="wide")
 
 # ── Tema visual TradingView dark ──────────────────────────────────────────────
 st.markdown("""
@@ -421,7 +421,7 @@ def _pantalla_login():
         st.image("logo_pi.png", use_container_width=True)
     st.markdown(
         "<div style='text-align:center;color:#d1d4dc;font-size:18px;font-weight:700;"
-        "margin:12px 0 4px'>🎯 Momento Dulce Scanner</div>"
+        "margin:12px 0 4px'>PI MOMENTUM</div>"
         "<div style='text-align:center;color:#787b86;font-size:13px;margin-bottom:20px'>"
         "Acceso privado — introduce tus credenciales</div>",
         unsafe_allow_html=True,
