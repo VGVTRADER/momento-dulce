@@ -414,12 +414,9 @@ def _pantalla_login():
     button[aria-label="Show password"],
     button[title="Show password"] { display: none !important; }
     </style>
-    <div class='login-box'>
-      <p style='margin-bottom:18px'></p>
-    </div>
     """, unsafe_allow_html=True)
 
-    col_logo1, col_logo2, col_logo3 = st.columns([1, 2, 1])
+    col_logo1, col_logo2, col_logo3 = st.columns([2, 1, 2])
     with col_logo2:
         st.image("logo_pi.png", use_container_width=True)
     st.markdown(
