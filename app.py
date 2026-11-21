@@ -415,10 +415,20 @@ def _pantalla_login():
     button[title="Show password"] { display: none !important; }
     </style>
     <div class='login-box'>
-      <h2>🎯 Momento Dulce Scanner</h2>
-      <p>Acceso privado — introduce tus credenciales</p>
+      <p style='margin-bottom:18px'></p>
     </div>
     """, unsafe_allow_html=True)
+
+    col_logo1, col_logo2, col_logo3 = st.columns([1, 2, 1])
+    with col_logo2:
+        st.image("logo_pi.png", use_container_width=True)
+    st.markdown(
+        "<div style='text-align:center;color:#d1d4dc;font-size:18px;font-weight:700;"
+        "margin:12px 0 4px'>🎯 Momento Dulce Scanner</div>"
+        "<div style='text-align:center;color:#787b86;font-size:13px;margin-bottom:20px'>"
+        "Acceso privado — introduce tus credenciales</div>",
+        unsafe_allow_html=True,
+    )
 
     modo = st.radio("", ["🔑 Entrar", "📝 Registrarse"], horizontal=True, label_visibility="collapsed")
 
