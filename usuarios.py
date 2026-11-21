@@ -8,6 +8,24 @@ import streamlit as st
 from core import hash_pw, load_users, save_users
 
 
+def _usuarios_de_secrets():
+    """Lee los usuarios definidos en [USERS] de Streamlit Secrets."""
+    try:
+        sec = {str(k).strip().lower(): dict(v) for k, v in dict(st.secrets.get("USERS", {})).items()}
+    except Exception:
+        sec = {}
+    result = {}
+    for k, v in sec.items():
+        result[k] = {
+            "nombre": v.get("nombre", k),
+            "rol": v.get("rol", "usuario"),
+            "activo": bool(v.get("activo", True)),
+            "creado": v.get("creado", "Secrets"),
+            "_de_secrets": True,
+        }
+    return result
+
+
 def render():
     st.markdown(
         "<div style='font-size:20px;font-weight:800;color:#f3efe8;margin:8px 0 2px'>👥 USUARIOS</div>"
@@ -20,6 +38,10 @@ def render():
     except Exception as e:
         st.error(f"No se pudo leer la lista de usuarios ({type(e).__name__}).")
         return
+
+    # Combinar con usuarios de Secrets (solo lectura — se muestran pero no se editan)
+    uu_secrets = _usuarios_de_secrets()
+    uu_combinado = {**uu_secrets, **uu}  # los del JSON/Supabase tienen prioridad
 
     flash = st.session_state.pop("_nu_flash", None)
     if flash:
@@ -57,23 +79,30 @@ def render():
                 except Exception as e:
                     st.error(f"No se pudo crear el usuario ({type(e).__name__}).")
 
-    if not uu:
+    if not uu_combinado:
         st.info("Todavía no hay usuarios registrados.")
         return
 
     # ── Tabla pagado ──
-    filas = [{"Email": k, "Nombre": v.get("nombre", ""), "Rol": v.get("rol", "usuario"),
-              "Alta": v.get("creado", ""), "Pagado": bool(v.get("activo"))} for k, v in uu.items()]
+    filas = [{"Email": k,
+              "Nombre": v.get("nombre", ""),
+              "Rol": v.get("rol", "usuario"),
+              "Alta": v.get("creado", ""),
+              "Pagado": bool(v.get("activo")),
+              "Origen": "🔒 Secrets" if v.get("_de_secrets") else "📋 Panel"}
+             for k, v in uu_combinado.items()]
     pend = sum(1 for f in filas if not f["Pagado"])
     st.markdown(f"Total: **{len(filas)}** · Pendientes: **:orange[{pend}]**")
+    _disabled = ["Email", "Nombre", "Rol", "Alta", "Origen"]
+    # Los de Secrets no se pueden editar desde el panel (son read-only)
     ed = st.data_editor(
         pd.DataFrame(sorted(filas, key=lambda f: (f["Pagado"], f["Email"]))),
-        hide_index=True, use_container_width=True, disabled=["Email", "Nombre", "Rol", "Alta"],
+        hide_index=True, use_container_width=True, disabled=_disabled,
         column_config={"Pagado": st.column_config.CheckboxColumn("✅ Pagado")}, key="tabla_usuarios",
     )
     if st.button("💾 Guardar cambios", type="primary", use_container_width=True):
         for _, row in ed.iterrows():
-            if row["Email"] in uu:
+            if row["Email"] in uu:  # solo los del panel, no los de Secrets
                 uu[row["Email"]]["activo"] = bool(row["Pagado"])
         try:
             save_users(uu)
@@ -96,10 +125,26 @@ def render():
 
     # ── Copia de seguridad ──
     with st.expander("💾 Copia de seguridad"):
-        st.download_button("⬇️ Descargar copia (.json)",
-                           data=json.dumps(uu, indent=2, ensure_ascii=False).encode("utf-8"),
+        # JSON completo (panel + secrets)
+        backup_json = json.dumps(uu_combinado, indent=2, ensure_ascii=False).encode("utf-8")
+        st.download_button("⬇️ Descargar copia JSON (todos los usuarios)",
+                           data=backup_json,
                            file_name=f"usuarios_backup_{datetime.now():%Y%m%d_%H%M}.json",
                            mime="application/json", use_container_width=True)
+        # TOML listo para pegar en Streamlit Secrets
+        lineas_toml = []
+        for k, v in uu_combinado.items():
+            lineas_toml.append(f'\n[USERS.{k}]')
+            lineas_toml.append(f'nombre = "{v.get("nombre", k)}"')
+            lineas_toml.append(f'rol = "{v.get("rol", "usuario")}"')
+            lineas_toml.append(f'activo = {"true" if v.get("activo") else "false"}')
+            if not v.get("_de_secrets"):
+                lineas_toml.append(f'# password guardado con hash (no visible)')
+        toml_txt = "\n".join(lineas_toml)
+        st.download_button("⬇️ Descargar TOML para Streamlit Secrets",
+                           data=toml_txt.encode("utf-8"),
+                           file_name=f"secrets_users_{datetime.now():%Y%m%d_%H%M}.toml",
+                           mime="text/plain", use_container_width=True)
         fich = st.file_uploader("⬆️ Restaurar copia (.json) — añade/actualiza, no borra", type=["json"])
         if fich is not None and st.button("Restaurar", type="primary"):
             try:
